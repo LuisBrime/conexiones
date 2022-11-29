@@ -11,21 +11,23 @@ let seed = ~~(fxrand() * 123456789)
 
 const MIN_NODE_CHILDREN = 1
 const MAX_NODE_CHILDREN = 2
+let maxDepth
 
 let palettes = []
 
 let showTexture
 
 function setup() {
-  randomSeed(102250032)
-  noiseSeed(102250032)
+  randomSeed(seed) // 102250032
+  noiseSeed(seed) // 102250032
   console.log(`Current Seed: ${seed}`)
 
   pixelDensity(4)
   createCanvas(1080, 1920, WEBGL)
 
-  xres = width / 10
+  xres = width / 20
   yres = height / 20
+  maxDepth = 3
 
   noLoop()
   colorMode(HSL, 360, 100, 100, 100)
@@ -132,29 +134,28 @@ function initGrid() {
       });
       // const p = createVector(gridX[i], gridY[j], 0)
 
-      const rot = map(
-        noise(node.x * 0.01, node.y * 0.01),
-        0,
-        1,
-        0,
-        TAU
-      )
-      node.pos.x += sin(rot) * 120
-      node.pos.y += cos(rot) * 120
-      // const rot = map(noise(p.x / 20, p.y / 20), 0, 1, 0, TAU)
-      // p.x += sin(rot) * 50
-      // p.y += cos(rot) * 50
+      // const rot = map(
+      //   noise(node.x * 50, node.y * 50, (i + j) * 0.5),
+      //   0,
+      //   1,
+      //   0,
+      //   TAU
+      // )
+      // const srx = sin(rot) * 50
+      // const sry = cos(rot) * 50
 
-      const zrot = map(
-        noise(node.y * 2, node.x * 2),
-        0,
-        1,
-        0,
-        TAU
-      )
-      node.pos.z = (sin(zrot) + cos(zrot)) * 3
-      // const zrot = map(noise(p.y * 5, p.x * 5), 0, 1, 0, TAU)
-      // p.z = (sin(zrot) + cos(zrot)) * 50
+      // node.pos.x += srx
+      // node.pos.y += sry
+      // node.pos.y += cos(rot) * 120
+
+      // const zrot = map(
+      //   noise(node.y * 2, node.x * 2),
+      //   0,
+      //   1,
+      //   0,
+      //   TAU
+      // )
+      // node.pos.z = (sin(zrot) + cos(zrot)) * 3
 
       gridPoints.push(node)
     }
@@ -164,9 +165,9 @@ function initGrid() {
 }
 
 function selectNodes() {
-  gridPoints = gridPoints.reduce((acc, curr) => {
+  nodes = gridPoints.reduce((acc, curr) => {
     if (
-      noise(curr.x * 0.5, curr.y * 0.9, curr.z * 1.3) < 0.47
+      noise(curr.x * 0.5, curr.y * 0.9, curr.z * 1.3) < 0.42
     ) {
       return [...acc, curr]
     } else {
@@ -178,17 +179,17 @@ function selectNodes() {
 }
 
 function connectNodes() {
-  for (const node of gridPoints) {
+  for (const node of nodes) {
     const numChildren = floor(
       random(MIN_NODE_CHILDREN, MAX_NODE_CHILDREN)
     )
 
     for (let ci = 0; ci < numChildren; ci++) {
       const di = abs((node.i + ceil(
-        random(-MAX_NODE_CHILDREN - 1, MAX_NODE_CHILDREN)
+        random(-maxDepth - 1, maxDepth)
       )) % gridX.length)
       const dj = abs((node.j + ceil(
-        random(-MAX_NODE_CHILDREN - 1, MAX_NODE_CHILDREN)
+        random(-maxDepth - 1, maxDepth)
       )) % gridY.length)
 
       if (di === node.i && dj === node.j) continue
@@ -203,20 +204,89 @@ function connectNodes() {
     }
 
     node.sortChildren()
-    nodes.push(node)
+    // nodes.push(node)
   }
 
   // nodes.filter((node) => node.childrenOrder.length > 0)
   // selectNodes()
 }
 
+function distortNodes(pen) {
+  for (const node of nodes) {
+    push()
+    let [ix, iy] = [node.pos.x, node.pos.y]
+    let distortions = 25
+    const xdir = random([-1,1])
+    const ydir = random([-1,1])
+
+    let vs = []
+    while (distortions--) {
+      // Draw path
+      vs.push({ x: ix, y: iy });
+      // Update position
+      const nt = noise(ix * 5.2, iy * 5.2) * TAU
+      ix += cos(nt) * 50 * xdir
+      iy += sin(nt) * 50 * ydir
+    }
+
+    // Figures
+    push()
+    noStroke()
+    const fc = color(
+      hue(node.mergedColor),
+      saturation(node.mergedColor),
+      lightness(node.mergedColor),
+      1
+    )
+    fill(fc)
+    beginShape()
+    for (const v of vs) {
+      vertex(v.x, v.y, node.pos.z)
+    }
+    endShape(CLOSE)
+    pop()
+
+    // Lines
+    pen.setColor(node.mergedColor)
+    pen.setConfig(0.2, 12)
+    vs.forEach((v, i) => {
+      const nv = vs[i + 1]
+      if (!nv) return
+
+      pen.penLine(
+        createVector(v.x, v.y, node.pos.z),
+        createVector(nv.x, nv.y, node.pos.z),
+      )
+    })
+
+    // Dots
+    push()
+    strokeWeight(0.4)
+    stroke(node.mergedColor)
+    vs.forEach((v) => {
+      let dots = 350
+      while (dots--) {
+        const dt = random(TAU)
+        const dd = random(25)
+        const [ddx, ddy] = [dd * cos(dt), dd * sin(dt)]
+        point(v.x + ddx, v.y + ddy, node.pos.z)
+      }
+    })
+    pop()
+
+    node.pos.x = ix
+    node.pos.y = iy
+    pop()
+  }
+}
+
 function draw() {
   background(palette.bg)
-
   push()
   translate(-width / 2, -height / 2)
 
-  const pen = new ThreeDPen(0.66, 6, '#ffffff')
+  const pen = new ThreeDPen(0.66, 6, '#ffffff')  
+  distortNodes(ThreeDPen.duplicate(pen))
 
   push()
   pen.setConfig(0.6, 9)
@@ -253,17 +323,45 @@ function draw() {
   strokeWeight(9)
   for (const p of nodes) {
     push()
+    translate(p.x, p.y, p.z)
     const pc = color(p.mergedColor)
     pc.setAlpha(90)
 
+    push()
+    // rotateX(random(TAU))
+    // rotateY(random(TAU))
+    // noFill()
+    // sphere(7, 8, 8)
+    let dots = 8000
+    while (dots--) {
+      stroke(pc)
+      strokeWeight(0.15)
+      if (random() > 0.75) {
+        const rcn = p.randomChildrenNode()
+        if (rcn) {
+          const cc = color(rcn.c)
+          cc.setAlpha(90)
+          stroke(cc)
+          strokeWeight(0.25)
+        }
+      }
+
+      const pt = random(TAU)
+      const d = random() * 4 // r = 5
+      const [px, py] = [
+        d * cos(pt),
+        d * sin(pt),
+      ]
+      point(px * random(1, 1.35), py * random(1, 1.35), p.z)
+    }
+    pop()
+
     pen.setColor(pc)
     pen.setConfig(0.5, 15)
-    pen.circle(p.x, p.y, p.z, 15, Axis.X, 0.45)
-    pen.circle(p.x, p.y, p.z, 15, Axis.Y, 0.45)
-    pen.circle(p.x, p.y, p.z, 15, Axis.Z, 0.45)
+    pen.circle(0, 0, 0, 15, Axis.X, 0.45)
+    pen.circle(0, 0, 0, 15, Axis.Y, 0.45)
+    pen.circle(0, 0, 0, 15, Axis.Z, 0.45)
 
-    stroke(pc)
-    point(p.x, p.y, p.z)
     pop()
   }
   pop()

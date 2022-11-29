@@ -43,8 +43,8 @@ class Node {
   }
 
   addChild(node, depth, strength) {
+    if (!node) console.log(`help: ${node}`)
     if (this.children[node.id]) return
-
     this.children[node.id] = { depth, node, strength }
     this.childrenOrder.push(node.id)
   }
@@ -59,5 +59,11 @@ class Node {
     this.childrenOrder.sort(
       (a, b) => this.children[a].depth - this.children[b].depth
     )
+  }
+
+  randomChildrenNode() {
+    if (!this.childrenOrder.length) return null;
+    const rid = random(this.childrenOrder)
+    return this.children[rid].node
   }
 }

@@ -11,6 +11,10 @@ class ThreeDPen {
     this.c = color(c)
   }
 
+  static duplicate(pen) {
+    return new ThreeDPen(pen.sW, pen.bW, pen.c)
+  }
+
   setColor(color) {
     this.c = color
   }
