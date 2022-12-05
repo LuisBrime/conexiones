@@ -17,13 +17,19 @@ let palettes = []
 
 let showTexture
 
+let W = 1080
+let H = 1920
+
+// let marginMaskGp
+
 function setup() {
   randomSeed(seed) // 102250032
   noiseSeed(seed) // 102250032
   console.log(`Current Seed: ${seed}`)
 
   pixelDensity(4)
-  createCanvas(1080, 1920, WEBGL)
+  createCanvas(W, H, WEBGL)
+  // marginMaskGp = createGraphics(W, H, WEBGL)
 
   xres = width / 20
   yres = height / 20
@@ -41,59 +47,61 @@ function setup() {
 let palette
 function setupPalettes() {
   palettes = [
-    { // Werner Light
-      baseColors: [
-        color(213, 29, 59, 50), // Berlin blue
-        color(339, 43, 50, 50), // Lake red
-        color(239, 16, 50, 50), // Campanula purple
-        color(230, 3, 37, 50), // Blackish Grey
-        color(47, 40, 48, 50), // Wax Yellow
-        color(150, 31, 53, 50), // Verdigris Green
-        color(10, 12, 49, 50), // Brownish Purple Red
-        color(240, 30, 31, 50), // China Blue
-        color(312, 7, 14, 50), // Ink Black
-        color(264, 4, 26, 50), // Bluish Black
-      ],
-      bg: color(47, 42, 87),
-      texture: color(51, 57, 47, 5),
-    },
-    { // Werner dark
-      baseColors: [
-        color(213, 29, 59, 50), // Berlin blue
-        color(339, 43, 50, 50), // Lake red
-        color(239, 16, 50, 50), // Campanula purple
-        color(41, 65, 49, 50), // Safron Yellow
-        color(150, 31, 53, 50), // Verdigris Green
-        color(47, 56, 87, 50), // Snow White
-        color(52, 16, 76, 50), // Ash Grey
-        color(156, 6, 83, 50), // Bluish Lilac Purple
-      ],
-      bg: color(264, 4, 26),
-      texture: color(47, 56, 30, 1),
-    },
-    {
-      baseColors: [
-        color(47, 59, 87, 50), // yellowish white
-        color(225, 39, 56, 50), // ultramarine blue
-        color(217, 29, 56, 50), // flax-flower blue
-        color(20, 58, 84, 50), // peach blossom red
-        color(348, 56, 57, 50), // carmine red
-        color(51, 74, 62, 50), // gamboe yellow
-      ],
-      bg: color(256, 18, 25), // pansy purple
-      texture: color(169, 32, 35, 1), // verditter blue
-    },
-    { // pasteles
-      baseColors: [
-        color(351, 32, 64, 50),
-        color(158, 14, 64, 50),
-        color(55, 18, 59, 50),
-        color(45, 54, 13, 50),
-        color(305, 27, 57, 50),
-      ],
-      bg: color(36, 48, 76), // 
-      texture: color(305, 27, 57, 6), // 
-    },
+    // { // Werner Light – No me gusta si se pinta las deformaciones
+    //   baseColors: [
+    //     color(213, 29, 59, 50), // Berlin blue
+    //     color(339, 43, 50, 50), // Lake red
+    //     color(239, 16, 50, 50), // Campanula purple
+    //     // color(230, 3, 37, 50), // Blackish Grey
+    //     color(47, 40, 48, 50), // Wax Yellow
+    //     color(150, 31, 53, 50), // Verdigris Green
+    //     // color(10, 12, 49, 50), // Brownish Purple Red
+    //     // color(240, 30, 31, 50), // China Blue
+    //     // color(312, 7, 14, 50), // Ink Black
+    //     // color(264, 4, 26, 50), // Bluish Black
+    //   ],
+    //   bg: color(47, 42, 87),
+    //   texture: color(51, 57, 47, 75),
+    //   // starAlpha: 20,
+    //   crayonAlpha: 3,
+    // },
+    // { // Werner dark
+    //   baseColors: [
+    //     color(213, 29, 59, 50), // Berlin blue
+    //     color(339, 43, 50, 50), // Lake red
+    //     color(239, 16, 50, 50), // Campanula purple
+    //     color(41, 65, 49, 50), // Safron Yellow
+    //     color(150, 31, 53, 50), // Verdigris Green
+    //     color(47, 56, 87, 50), // Snow White
+    //     color(52, 16, 76, 50), // Ash Grey
+    //     color(156, 6, 83, 50), // Bluish Lilac Purple
+    //   ],
+    //   bg: color(264, 4, 26),
+    //   texture: color(47, 56, 30, 85),
+    // },
+    // {
+    //   baseColors: [
+    //     color(47, 59, 87, 50), // yellowish white
+    //     color(225, 39, 56, 50), // ultramarine blue
+    //     color(217, 29, 56, 50), // flax-flower blue
+    //     color(20, 58, 84, 50), // peach blossom red
+    //     color(348, 56, 57, 50), // carmine red
+    //     color(51, 74, 62, 50), // gamboe yellow
+    //   ],
+    //   bg: color(256, 18, 25), // pansy purple
+    //   texture: color(169, 32, 35, 78), // verditter blue
+    // },
+    // { // pasteles
+    //   baseColors: [
+    //     color(351, 32, 64, 50),
+    //     color(158, 14, 64, 50),
+    //     color(55, 18, 59, 50),
+    //     color(45, 54, 13, 50),
+    //     color(305, 27, 57, 50),
+    //   ],
+    //   bg: color(36, 48, 76), // 
+    //   texture: color(305, 27, 57, 70), // 
+    // },
     { // caminos
       baseColors: [
         color(2, 63, 70, 50),
@@ -106,7 +114,7 @@ function setupPalettes() {
         color(56, 97, 65, 50),
       ],
       bg: color(43, 90, 96), // 
-      texture: color(32, 32, 77, 15), // 
+      texture: color(32, 32, 77, 75), // 
     },
   ]
   palette = random(palettes)
@@ -123,41 +131,15 @@ function initGrid() {
 
   for (let i = 0; i < gridX.length; i++) {
     for (let j = 0; j < gridY.length; j++) {
-      const node = new Node({
+      gridPoints.push(new Node({
         i,
         j,
         id: gridPoints.length + 1,
         x: gridX[i],
         y: gridY[j],
-        z: 0,
+        z: 1,
         c: random(palette.baseColors),
-      });
-      // const p = createVector(gridX[i], gridY[j], 0)
-
-      // const rot = map(
-      //   noise(node.x * 50, node.y * 50, (i + j) * 0.5),
-      //   0,
-      //   1,
-      //   0,
-      //   TAU
-      // )
-      // const srx = sin(rot) * 50
-      // const sry = cos(rot) * 50
-
-      // node.pos.x += srx
-      // node.pos.y += sry
-      // node.pos.y += cos(rot) * 120
-
-      // const zrot = map(
-      //   noise(node.y * 2, node.x * 2),
-      //   0,
-      //   1,
-      //   0,
-      //   TAU
-      // )
-      // node.pos.z = (sin(zrot) + cos(zrot)) * 3
-
-      gridPoints.push(node)
+      }))
     }
   }
 
@@ -167,7 +149,7 @@ function initGrid() {
 function selectNodes() {
   nodes = gridPoints.reduce((acc, curr) => {
     if (
-      noise(curr.x * 0.5, curr.y * 0.9, curr.z * 1.3) < 0.42
+      noise(curr.x * 0.5, curr.y * 0.9, curr.z * 1.3) < 0.39
     ) {
       return [...acc, curr]
     } else {
@@ -199,6 +181,7 @@ function connectNodes() {
       )
 
       if (!child) continue
+      // const child = random(gridPoints)
       const depth = node.getDepth(child)
       node.addChild(child, depth, random(0.1, 0.85))
     }
@@ -213,11 +196,13 @@ function connectNodes() {
 
 function distortNodes(pen) {
   for (const node of nodes) {
+    const mc = node.mergedColor
     push()
     let [ix, iy] = [node.pos.x, node.pos.y]
     let distortions = 25
     const xdir = random([-1,1])
     const ydir = random([-1,1])
+    const distortionSize = 40
 
     let vs = []
     while (distortions--) {
@@ -225,30 +210,33 @@ function distortNodes(pen) {
       vs.push({ x: ix, y: iy });
       // Update position
       const nt = noise(ix * 5.2, iy * 5.2) * TAU
-      ix += cos(nt) * 50 * xdir
-      iy += sin(nt) * 50 * ydir
+      ix += cos(nt) * distortionSize * xdir
+      iy += sin(nt) * distortionSize * ydir
     }
 
     // Figures
     push()
     noStroke()
     const fc = color(
-      hue(node.mergedColor),
-      saturation(node.mergedColor),
-      lightness(node.mergedColor),
-      1
+      hue(mc),
+      saturation(mc),
+      lightness(mc),
+      palette.crayonAlpha || 1
     )
     fill(fc)
     beginShape()
+    const [first, last] = [vs[0], vs[vs.length - 1]]
+    vertex(first.x, first.y, -1)
     for (const v of vs) {
-      vertex(v.x, v.y, node.pos.z)
+      vertex(v.x, v.y, -1)
     }
+    vertex(last.x, last.y, -1)
     endShape(CLOSE)
     pop()
 
     // Lines
-    pen.setColor(node.mergedColor)
-    pen.setConfig(0.2, 12)
+    pen.setColor(palette.texture)
+    pen.setConfig(0.09, 22)
     vs.forEach((v, i) => {
       const nv = vs[i + 1]
       if (!nv) return
@@ -261,15 +249,21 @@ function distortNodes(pen) {
 
     // Dots
     push()
-    strokeWeight(0.4)
-    stroke(node.mergedColor)
+    let dc = color(
+      hue(mc),
+      saturation(mc),
+      lightness(mc),
+      palette.starAlpha || 10
+    )
+    strokeWeight(0.7)
+    stroke(dc)
     vs.forEach((v) => {
-      let dots = 350
+      let dots = distortionSize * 18.5
       while (dots--) {
         const dt = random(TAU)
-        const dd = random(25)
+        const dd = random(distortionSize * 0.9)
         const [ddx, ddy] = [dd * cos(dt), dd * sin(dt)]
-        point(v.x + ddx, v.y + ddy, node.pos.z)
+        point(v.x + ddx, v.y + ddy, -1)
       }
     })
     pop()
@@ -366,7 +360,7 @@ function draw() {
   }
   pop()
 
-  if (showTexture) addTexture()
+  // if (showTexture) addTexture()
 
   pop()
 }
@@ -400,11 +394,4 @@ function addTexture() {
   }
 
   if (isFxpreview) fxpreview()
-}
-
-function keyTyped() {
-  if (key === 't' || key === 'T') {
-    showTexture = !showTexture
-    redraw()
-  }
 }
