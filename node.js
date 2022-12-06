@@ -66,4 +66,36 @@ class Node {
     const rid = random(this.childrenOrder)
     return this.children[rid].node
   }
+
+  display() {
+    push()
+    const c = color(this.mergedColor)
+    c.setAlpha(85)
+    let dots = 8000
+    while (dots--) {
+      stroke(c)
+      strokeWeight(0.15)
+
+      if (random() > 0.75) {
+        const rcn = this.randomChildrenNode()
+        if (rcn) {
+          const cc = color(rcn.c)
+          cc.setAlpha(85)
+          stroke(cc)
+          strokeWeight(0.25)
+        }
+      }
+
+      const pt = random(TAU)
+      const d = random(4)
+      const [px, py] = [d * cos(pt), d * sin(pt)]
+
+      point(
+        px * random(1, 1.35),
+        py * random(1, 1.35),
+        this.pos.z,
+      )
+    }
+    pop()
+  }
 }
